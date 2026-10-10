@@ -1,0 +1,790 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diseñador y Taller de Agendas A4/A5 - Modular</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- PANEL LATERAL DE CONTROL -->
+  <aside class="sidebar no-print" id="sidebarPanel">
+    <!-- NAVEGACIÓN POR PESTAÑAS -->
+    <nav class="sidebar-tabs">
+      <button class="tab-btn active" data-tab="tabSheet" onclick="switchTab('tabSheet')">📄 Hoja</button>
+      <button class="tab-btn" data-tab="tabModules" onclick="switchTab('tabModules')">🧩 Módulos</button>
+      <button class="tab-btn" data-tab="tabTexts" onclick="switchTab('tabTexts')">✍️ Textos</button>
+      <button class="tab-btn" data-tab="tabStyles" onclick="switchTab('tabStyles')">🎨 Estilo</button>
+      <button class="tab-btn" data-tab="tabSystem" onclick="switchTab('tabSystem')">⚙️ Sistema</button>
+    </nav>
+
+    <!-- CUERPO DE PESTAÑAS -->
+    <div class="sidebar-scroll-body">
+      <!-- PESTAÑA 1: HOJA Y FORMATO -->
+      <div id="tabSheet" class="tab-pane active">
+        <div class="sidebar-section">
+          <div class="sidebar-title">Formato de Impresión</div>
+          <div class="form-group">
+            <label>Formato de Papel</label>
+            <select id="paperFormatSelect" onchange="changePaperFormat(this.value)">
+              <option value="a4_portrait">1x A4 Folio Vertical (210 × 297 mm)</option>
+              <option value="a5_duo">2x A5 en A4 Apaisado (Guillotina Central)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Caras de Impresión</label>
+            <select id="duplexModeSelect" onchange="changeDuplexMode(this.value)">
+              <option value="single">Una Cara (Sólo cara activa)</option>
+              <option value="duplex_mirror">Doble Cara (Anverso / Reverso Alterno)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Margen de Encuadernación / Perforación</label>
+            <select id="gutterSelect" onchange="changeGutter(this.value)">
+              <option value="standard">Sin margen extra (8mm simétrico)</option>
+              <option value="rings">Anillas / Archivador (+12mm en lomo)</option>
+              <option value="clipboard">Portapapeles (+14mm superior)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Compensación Margen Impresora</label>
+            <select id="hardwareMarginSelect" onchange="changeHardwareMargin(this.value)">
+              <option value="0">0 mm (Láser / Fotocopiadora Pro)</option>
+              <option value="2">+2 mm (Ajuste leve)</option>
+              <option value="3">+3 mm (Inyección estándar)</option>
+              <option value="4">+4 mm (Inyección doméstica)</option>
+              <option value="5">+5 mm (Margen seguro amplio)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Guías de Taladro (Puntos de perforado)</label>
+            <select id="punchHolesSelect" onchange="changePunchHoles(this.value)">
+              <option value="none">Sin guías de perforado</option>
+              <option value="iso_2">2 Anillas ISO 838 (80 mm central)</option>
+              <option value="iso_4">4 Anillas Estándar (80-80-80 mm)</option>
+            </select>
+          </div>
+          
+          <!-- PESTAÑA EXTERIOR (THUMB TAB CON COLOR) -->
+          <div class="form-group">
+            <label>Pestaña Exterior (Thumb Tab)</label>
+            <div style="display:flex; gap:4px; margin-bottom:4px;">
+              <input type="text" id="thumbTabInput" placeholder="Ej. OCT o PRO" style="width:70%;" oninput="updateThumbTab(this.value)">
+              <select id="thumbTabPos" style="width:30%;" onchange="updateThumbTabPos(this.value)">
+                <option value="1">Pos 1</option>
+                <option value="2">Pos 2</option>
+                <option value="3">Pos 3</option>
+                <option value="4">Pos 4</option>
+                <option value="5">Pos 5</option>
+              </select>
+            </div>
+            <div class="thumb-color-picker-group">
+              <div class="color-input-wrapper">
+                <span>Fondo:</span>
+                <input type="color" id="thumbTabBgInput" value="#0f172a" onchange="updateThumbTabColors(this.value, null)">
+              </div>
+              <div class="color-input-wrapper">
+                <span>Texto:</span>
+                <input type="color" id="thumbTabTextInput" value="#ffffff" onchange="updateThumbTabColors(null, this.value)">
+              </div>
+            </div>
+            <div class="color-palette-presets">
+              <button class="palette-btn" style="background:#0f172a;" title="Negro / Técnico" onclick="updateThumbTabColors('#0f172a', '#ffffff')"></button>
+              <button class="palette-btn" style="background:#1e40af;" title="Azul / Pro" onclick="updateThumbTabColors('#1e40af', '#ffffff')"></button>
+              <button class="palette-btn" style="background:#15803d;" title="Verde / Foco" onclick="updateThumbTabColors('#15803d', '#ffffff')"></button>
+              <button class="palette-btn" style="background:#b45309;" title="Ámbar / Finanzas" onclick="updateThumbTabColors('#b45309', '#ffffff')"></button>
+              <button class="palette-btn" style="background:#b91c1c;" title="Rojo / Urgente" onclick="updateThumbTabColors('#b91c1c', '#ffffff')"></button>
+              <button class="palette-btn" style="background:#6b21a8;" title="Púrpura / Personal" onclick="updateThumbTabColors('#6b21a8', '#ffffff')"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Plantillas de la Cara Activa</div>
+          <div class="form-group">
+            <label>Plantilla Seleccionada</label>
+            <div style="display:flex; gap:4px;">
+              <select id="presetSelect" onchange="loadPreset(this.value)"></select>
+              <button class="btn" style="width:32px; padding:0;" title="Editar plantilla" onclick="editCurrentPreset()">✎</button>
+              <button class="btn btn-danger" style="width:32px; padding:0;" title="Borrar plantilla" onclick="deleteCurrentPreset()">🗑️</button>
+            </div>
+          </div>
+          <div class="btn-grid-2">
+            <button class="btn" onclick="openPresetModal()">+ Nueva Plantilla</button>
+            <button class="btn" onclick="quickSaveCurrentPreset()">💾 Capturar Cara</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 2: CATÁLOGO DE MÓDULOS -->
+      <div id="tabModules" class="tab-pane">
+        <div class="sidebar-section">
+          <div class="sidebar-title">
+            <span>Catálogo de Bloques</span>
+            <button class="btn" style="width:auto; padding:2px 8px; font-size:10px;" onclick="openModuleCreator()">+ Crear Módulo</button>
+          </div>
+          <div class="catalog-group">
+            <span class="catalog-tag tag-psy">Psicología & Foco</span>
+            <div id="cat-psy"></div>
+          </div>
+          <div class="catalog-group">
+            <span class="catalog-tag tag-pro">Finanzas Autónomo</span>
+            <div id="cat-pro"></div>
+          </div>
+          <div class="catalog-group">
+            <span class="catalog-tag tag-pers">Personal & Hogar</span>
+            <div id="cat-pers"></div>
+          </div>
+          <div class="catalog-group">
+            <span class="catalog-tag tag-mix">Estructura & Tiempo</span>
+            <div id="cat-mix"></div>
+          </div>
+          <div class="catalog-group" id="customModulesGroup" style="display:none;">
+            <span class="catalog-tag tag-cust">Mis Módulos Personalizados</span>
+            <div id="customModulesList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 3: ENCABEZADOS Y PIES DE PÁGINA -->
+      <div id="tabTexts" class="tab-pane">
+        <div class="sidebar-section">
+          <div class="sidebar-title">Encabezados y Leyendas</div>
+          <div class="form-group">
+            <label>Modelo de Encabezado</label>
+            <div style="display:flex; gap:4px;">
+              <select id="headerPresetSelect" onchange="loadHeaderPreset(this.value)"></select>
+              <button class="btn" style="width:32px; padding:0;" title="Editar encabezado" onclick="editCurrentHeaderPreset()">✎</button>
+              <button class="btn btn-danger" style="width:32px; padding:0;" title="Borrar encabezado" onclick="deleteCurrentHeaderPreset()">🗑️</button>
+            </div>
+          </div>
+          <div class="btn-grid-2" style="margin-bottom:10px;">
+            <button class="btn" onclick="openHeaderModal()">+ Nuevo Modelo</button>
+            <button class="btn" onclick="quickSaveCurrentHeaderPreset()">💾 Capturar Actual</button>
+          </div>
+          <div class="form-group">
+            <label>Título Principal</label>
+            <input type="text" id="cfgTitle" oninput="updateFolioMeta('title', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Subtítulo / Lema</label>
+            <input type="text" id="cfgSubtitle" oninput="updateFolioMeta('subtitle', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Etiqueta de Fecha</label>
+            <input type="text" id="cfgDateLabel" oninput="updateFolioMeta('dateLabel', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Días / Clima</label>
+            <input type="text" id="cfgDaySlots" oninput="updateFolioMeta('daySlots', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Pie Derecho (Marca / Pág.)</label>
+            <input type="text" id="cfgFooterBrand" oninput="updateFolioMeta('footerBrand', this.value)">
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Pies de Página</div>
+          <div class="form-group">
+            <label>Modelo de Pie (Cara Activa)</label>
+            <div style="display:flex; gap:4px;">
+              <select id="footerPresetSelect" onchange="setFooterPreset(this.value)"></select>
+              <button class="btn" style="width:32px; padding:0;" title="Editar pie" onclick="editCurrentFooter()">✎</button>
+              <button class="btn btn-danger" style="width:32px; padding:0;" title="Borrar pie" onclick="deleteCurrentFooter()">🗑️</button>
+            </div>
+          </div>
+          <div class="btn-grid-2">
+            <button class="btn" onclick="openFooterModal()">+ Nuevo Pie</button>
+            <button class="btn" onclick="quickSaveCurrentFooter()">💾 Capturar Pie</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 4: ESTILO VISUAL E IMPRESIÓN -->
+      <div id="tabStyles" class="tab-pane">
+        <div class="sidebar-section">
+          <div class="sidebar-title">Modelos de Estilo Visual</div>
+          <div class="form-group">
+            <label>Modelo de Estilo / Tema</label>
+            <div style="display:flex; gap:4px;">
+              <select id="stylePresetSelect" onchange="loadStylePreset(this.value)"></select>
+              <button class="btn" style="width:32px; padding:0;" title="Editar estilo" onclick="editCurrentStyle()">✎</button>
+              <button class="btn btn-danger" style="width:32px; padding:0;" title="Borrar estilo" onclick="deleteCurrentStyle()">🗑️</button>
+            </div>
+          </div>
+          <div class="btn-grid-2" style="margin-bottom:12px;">
+            <button class="btn" onclick="openStyleModal()">+ Nuevo Estilo</button>
+            <button class="btn" onclick="quickSaveCurrentStyle()">💾 Capturar Estilo</button>
+          </div>
+
+          <div class="sidebar-title" style="margin-top:6px;">Ajustes Rápidos de Impresión</div>
+          <div class="form-group">
+            <label>Paleta de Tinta</label>
+            <select id="themeSelect" onchange="changeTheme(this.value)">
+              <option value="mono">Monocromo Puro (Contraste Máximo)</option>
+              <option value="laser_pure">Ahorro Láser Puro (Microtrama 0.25pt)</option>
+              <option value="nordic">Nordic Slate (Pizarra & Hielo)</option>
+              <option value="forest">Forest / Botánico (Salvia & Verde)</option>
+              <option value="terracotta">Terracota / Cuero (Sepia & Teja)</option>
+              <option value="graphite">Grafito Suave (Económico)</option>
+              <option value="technical">Azul Técnico (Blueprint / Cianuro)</option>
+              <option value="editorial">Sepia / Clásico Suave</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipografía de Impresión</label>
+            <select id="fontSelect" onchange="changeFont(this.value)">
+              <option value="sans">Sans-Serif Moderna (Limpia)</option>
+              <option value="serif">Serif Editorial (Lectura Libro)</option>
+              <option value="mono">Monospace (Técnica / Código)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tono de Renglones / Guías</label>
+            <select id="ruleToneSelect" onchange="changeRuleTone(this.value)">
+              <option value="standard">Tono Normal (Equilibrado)</option>
+              <option value="faint">Tono Tenue (Muy sutil para escribir)</option>
+              <option value="strong">Tono Marcado (Línea visible)</option>
+            </select>
+          </div>
+
+          <div class="sidebar-title" style="margin-top:10px;">Pautas y Geometría de Cajas</div>
+          <div class="form-group">
+            <label>Paso de Renglón / Pauta</label>
+            <select id="gridStepSelect" onchange="changeGridStep(this.value)">
+              <option value="5.0">5.0 mm (Densidad alta / Cuadrícula técnica)</option>
+              <option value="6.0">6.0 mm (Japonesa / Midori / Hobonichi)</option>
+              <option value="7.0">7.0 mm (Estándar compacta)</option>
+              <option value="7.5">7.5 mm (Estándar amplia)</option>
+              <option value="8.5">8.5 mm (Letra grande / Rotuladores)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tratamiento de Módulos (Cajas)</label>
+            <select id="boxStyleSelect" onchange="changeBoxStyle(this.value)">
+              <option value="framed">Marco Cerrado (Estándar)</option>
+              <option value="open">Minimalista Abierto (Línea superior, sin cajas)</option>
+              <option value="inverted">Cabecera Invertida (Tinta sólida / Alto contraste)</option>
+              <option value="stripe">Banda Lateral de Acento (Borde izquierdo 3.5mm)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bordes de Módulos</label>
+            <select id="boxRadiusSelect" onchange="changeBoxRadius(this.value)">
+              <option value="sharp">Esquinas Vivas (0 mm / Técnico)</option>
+              <option value="rounded">Esquinas Redondeadas (2.5 mm / Editorial)</option>
+            </select>
+          </div>
+
+          <div class="sidebar-title" style="margin-top:10px;">Simulador de Soporte (Pantalla)</div>
+          <div class="form-group">
+            <label>Tono de Papel (Solo Visual)</label>
+            <select id="paperToneSelect" onchange="changePaperTone(this.value)">
+              <option value="white">Blanco Óptico (80g estándar)</option>
+              <option value="cream">Marfil / Crema (Tipo Moleskine)</option>
+              <option value="kraft">Reciclado / Ahuesado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 5: SISTEMA, AGENDAS Y DIAGNÓSTICO -->
+      <div id="tabSystem" class="tab-pane">
+        <div class="sidebar-section">
+          <div class="sidebar-title">
+            <span>📚 Biblioteca de Agendas Guardadas</span>
+          </div>
+          <div id="savedAgendasContainer" style="max-height:160px; overflow-y:auto; margin-bottom:8px;"></div>
+          <button class="btn btn-primary" onclick="openBatchModal()">+ Configurar y Guardar Nueva Tirada</button>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Accesos de Imprenta</div>
+          <div class="btn-grid-2">
+            <button class="btn" onclick="openBatchModal()">📅 Lote de Fechas</button>
+            <button class="btn" onclick="openBookletBatchModal()">📖 Cuadernillo Booklet</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Instantáneas Rápidas (Slots)</div>
+          <div class="snapshot-grid">
+            <div class="snapshot-card">
+              <strong>Slot A</strong>
+              <div class="snapshot-meta" id="snapMetaA">Vacío</div>
+              <div style="display:flex; gap:2px;">
+                <button class="btn" style="padding:2px; font-size:9px;" onclick="takeSnapshot('A')">💾</button>
+                <button class="btn" style="padding:2px; font-size:9px;" onclick="restoreSnapshot('A')">📂</button>
+              </div>
+            </div>
+            <div class="snapshot-card">
+              <strong>Slot B</strong>
+              <div class="snapshot-meta" id="snapMetaB">Vacío</div>
+              <div style="display:flex; gap:2px;">
+                <button class="btn" style="padding:2px; font-size:9px;" onclick="takeSnapshot('B')">💾</button>
+                <button class="btn" style="padding:2px; font-size:9px;" onclick="restoreSnapshot('B')">📂</button>
+              </div>
+            </div>
+            <div class="snapshot-card">
+              <strong>Slot C</strong>
+              <div class="snapshot-meta" id="snapMetaC">Vacío</div>
+              <div style="display:flex; gap:2px;">
+                <button class="btn" style="padding:2px; font-size:9px;" onclick="takeSnapshot('C')">💾</button>
+                <button class="btn" style="padding:2px; font-size:9px;" onclick="restoreSnapshot('C')">📂</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Salud del Sistema & Cuota</div>
+          <div class="storage-monitor-box">
+            <div style="display:flex; justify-content:space-between; font-size:10px;">
+              <span>Almacenamiento Local:</span>
+              <span id="storageUsageLabel" style="font-weight:700;">0 KB / 5 MB</span>
+            </div>
+            <div class="storage-bar-track">
+              <div id="storageUsageBar" class="storage-bar-fill"></div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; margin-bottom:6px;">
+            <span id="systemHealthBadge" style="color:var(--text-muted);">Módulos: 20 nativos</span>
+            <button class="btn" style="width:auto; padding:2px 6px; font-size:9px;" onclick="purgeLegacyKeys()">🧹 Purgar claves v7-v13</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Copias de Seguridad (JSON)</div>
+          <div class="btn-grid-2">
+            <button class="btn" onclick="exportConfigJson()">💾 Guardar Hoja</button>
+            <button class="btn" onclick="triggerImportJson()">📂 Abrir Hoja</button>
+          </div>
+          <input type="file" id="importInput" style="display:none;" accept=".json" onchange="handleFileSelectPreflight(event)">
+
+          <div class="btn-grid-2" style="margin-top:6px;">
+            <button class="btn" onclick="exportModulePackJson()">📦 Exportar Pack</button>
+            <button class="btn" onclick="triggerImportModulePack()">📥 Cargar Pack</button>
+          </div>
+          <input type="file" id="modulePackInput" style="display:none;" accept=".json" onchange="importModulePackFile(event)">
+
+          <button class="btn btn-danger" style="margin-top:8px;" onclick="safeResetWithAutoBackup()">Restaurar con Copia Automática</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL INFERIOR FIJO -->
+    <div class="sidebar-sticky-footer">
+      <div class="face-toggle-group" style="margin-bottom:6px;">
+        <button id="btnFaceA" class="btn-face active" onclick="switchActiveFace('A')">Cara A</button>
+        <button id="btnFaceB" class="btn-face" onclick="switchActiveFace('B')">Cara B</button>
+        <button id="btnFaceSpread" class="btn-face" onclick="toggleSpreadView()">Pliego 📖</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:2px;">
+        <span id="budgetTitleLabel">Capacidad (Cara A)</span>
+        <span id="budgetLabel" style="font-weight:700;">0 mm / 270 mm</span>
+      </div>
+      <div class="budget-bar-container" style="margin-bottom:5px;">
+        <div id="budgetBar" class="budget-bar-fill"></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:9.5px; margin-bottom:6px;">
+        <span>Densidad Cognitiva:</span>
+        <span id="densityBadge" class="density-badge">Calculando...</span>
+      </div>
+
+      <div class="btn-grid-2">
+        <button class="btn" onclick="autoAdjustModules()">📐 Auto-ajustar</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- LIENZO Y VISOR FÍSICO CON BOTONES + Y - -->
+  <main class="main-viewport" id="viewportMain">
+    <header class="viewport-toolbar no-print">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Zoom:</span>
+        <button class="zoom-btn" onclick="adjustZoom(-0.1)" title="Alejar (-10%)" style="font-weight:700; width:26px; padding:4px 0;">−</button>
+        <button class="zoom-btn" onclick="adjustZoom(0.1)" title="Acercar (+10%)" style="font-weight:700; width:26px; padding:4px 0;">+</button>
+        <button class="zoom-btn" onclick="setZoom(0.5)">50%</button>
+        <button class="zoom-btn" onclick="setZoom(0.75)">75%</button>
+        <button class="zoom-btn active" id="btnZoom100" onclick="setZoom(1.0)">100%</button>
+        <button class="zoom-btn" id="btnZoomFit" onclick="setZoom('fit')">Ajustar</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn-solo-folio" id="btnSoloFolio" onclick="toggleSoloFolio()" title="Alternar modo Solo Folio (Atajo: F o Escape)">
+          👁️ Solo Folio <kbd class="kbd-hint">F</kbd>
+        </button>
+      </div>
+    </header>
+
+    <div class="zoom-viewport-container" id="zoomContainer">
+      <div id="printSheetContainer" class="print-container"></div>
+    </div>
+  </main>
+
+  <!-- MODAL: CREADOR / EDITOR DE MÓDULOS -->
+  <div class="modal-overlay" id="creatorModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:13px;" id="creatorModalHeading">Crear Módulo Personalizado</strong>
+        <button class="ctrl-btn" onclick="closeModuleCreator()">✕</button>
+      </div>
+      <input type="hidden" id="editingModuleId" value="">
+      <div class="form-group">
+        <label>Título del Módulo</label>
+        <input type="text" id="custTitle" placeholder="Ej. Presupuestos y Propuestas">
+      </div>
+      <div class="form-group">
+        <label>Ámbito / Categoría</label>
+        <select id="custScope">
+          <option value="pro">Profesional / Autónomo</option>
+          <option value="pers">Personal / Hogar</option>
+          <option value="psy">Psicología / Hábitos</option>
+          <option value="mix">General / Tiempo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de Estructura</label>
+        <select id="custType" onchange="toggleCreatorOptions(this.value)">
+          <option value="table">Tabla con Columnas</option>
+          <option value="checklist">Lista de Casillas (Checklist)</option>
+          <option value="pattern">Patrón (Renglones / Puntos / Cuadrícula)</option>
+          <option value="kpi">Cajas de Indicadores (KPIs)</option>
+        </select>
+      </div>
+      <div id="custOptTable" class="form-group">
+        <label>Columnas (separadas por comas)</label>
+        <input type="text" id="custCols" value="Concepto, Importe, Estado">
+      </div>
+      <div id="custOptPattern" class="form-group" style="display:none;">
+        <label>Tipo de Patrón</label>
+        <select id="custPatternType">
+          <option value="lines">Renglones</option>
+          <option value="dots">Trama de Puntos</option>
+          <option value="graph">Cuadrícula Técnica</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Número de Filas / Altura</label>
+        <input type="number" id="custRows" value="5" min="2" max="15">
+      </div>
+      <div class="form-group">
+        <label>Ancho en Hoja</label>
+        <select id="custSpan">
+          <option value="1">Media Hoja (1 Columna)</option>
+          <option value="2">Ancho Completo (2 Columnas)</option>
+        </select>
+      </div>
+      <div class="btn-grid-2" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveCustomModule()">Guardar Módulo</button>
+        <button class="btn" onclick="closeModuleCreator()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREADOR / EDITOR DE PLANTILLAS DE CARA -->
+  <div class="modal-overlay" id="presetModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:13px;" id="presetModalHeading">Configurar Plantilla de Cara</strong>
+        <button class="ctrl-btn" onclick="closePresetModal()">✕</button>
+      </div>
+      <input type="hidden" id="editingPresetKey" value="">
+      <div class="form-group">
+        <label>Nombre de la Plantilla</label>
+        <input type="text" id="presetModelName" placeholder="Ej. Jornada de Producción">
+      </div>
+      <div class="form-group">
+        <label>Origen de los Módulos</label>
+        <select id="presetSourceType" onchange="togglePresetSourceType(this.value)">
+          <option value="current">Copiar distribución actual de la Cara Activa</option>
+          <option value="clone">Clonar desde otra plantilla</option>
+          <option value="select">Seleccionar módulos del catálogo (Lista)</option>
+        </select>
+      </div>
+      <div id="presetOptClone" class="form-group" style="display:none;">
+        <label>Plantilla a Clonar</label>
+        <select id="presetCloneSelect"></select>
+      </div>
+      <div id="presetOptSelect" class="form-group" style="display:none;">
+        <label style="margin-bottom:4px;">Marcar módulos a incluir:</label>
+        <div id="presetModuleChecklist" style="max-height:170px; overflow-y:auto; border:1px solid var(--border-ui); padding:6px 8px; border-radius:4px; background:#fafafa; font-size:11px;"></div>
+      </div>
+      <div class="btn-grid-2" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="savePresetFromModal()">Guardar Plantilla</button>
+        <button class="btn" onclick="closePresetModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREADOR / EDITOR DE PIES DE PÁGINA -->
+  <div class="modal-overlay" id="footerModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:13px;" id="footerModalHeading">Configurar Modelo de Pie</strong>
+        <button class="ctrl-btn" onclick="closeFooterModal()">✕</button>
+      </div>
+      <input type="hidden" id="editingFooterKey" value="">
+      <div class="form-group">
+        <label>Nombre del Modelo de Pie</label>
+        <input type="text" id="footerModelName" placeholder="Ej. Cierre de Ventas">
+      </div>
+      <div class="form-group">
+        <label>Estructura del Pie</label>
+        <select id="footerModelType" onchange="toggleFooterModalType(this.value)">
+          <option value="checklist">Lista de Verificación (Casillas)</option>
+          <option value="blank">Renglón Libre para Mano</option>
+          <option value="custom">HTML Personalizado</option>
+        </select>
+      </div>
+      <div id="footerOptChecklist" class="form-group">
+        <label>Casillas de Verificación (por comas)</label>
+        <input type="text" id="footerChecklistItems" value="Horas imputadas, Tickets archivados, Agenda revisada">
+      </div>
+      <div id="footerOptCustom" class="form-group" style="display:none;">
+        <label>Contenido HTML Libre</label>
+        <textarea id="footerCustomRaw" rows="4" style="width:100%; font-size:11px; padding:6px; font-family:monospace; border:1px solid var(--border-ui); border-radius:4px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Texto Pie Derecho</label>
+        <input type="text" id="footerBrandInput" value="FOLIO A4 | IMPRESO LOCALMENTE">
+      </div>
+      <div class="btn-grid-2" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveFooterFromModal()">Guardar Pie</button>
+        <button class="btn" onclick="closeFooterModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREADOR / EDITOR DE ENCABEZADOS -->
+  <div class="modal-overlay" id="headerModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:13px;" id="headerModalHeading">Configurar Modelo de Encabezado</strong>
+        <button class="ctrl-btn" onclick="closeHeaderModal()">✕</button>
+      </div>
+      <input type="hidden" id="editingHeaderKey" value="">
+      <div class="form-group">
+        <label>Nombre del Modelo</label>
+        <input type="text" id="headerModelName" placeholder="Ej. Bitácora de Proyecto">
+      </div>
+      <div class="form-group">
+        <label>Título Principal</label>
+        <input type="text" id="headerModelTitle" placeholder="Ej. BITÁCORA DE CONTROL">
+      </div>
+      <div class="form-group">
+        <label>Subtítulo / Lema</label>
+        <input type="text" id="headerModelSubtitle" placeholder="Ej. Enfoque Operativo & Registro">
+      </div>
+      <div class="form-group">
+        <label>Etiqueta de Fecha</label>
+        <input type="text" id="headerModelDateLabel" value="FECHA:">
+      </div>
+      <div class="form-group">
+        <label>Indicador de Días / Clima</label>
+        <input type="text" id="headerModelDaySlots" value="L M X J V S D">
+      </div>
+      <div class="form-group">
+        <label>Pie Derecho (Marca / Referencia)</label>
+        <input type="text" id="headerModelFooterBrand" value="FOLIO A4 | IMPRESO LOCALMENTE">
+      </div>
+      <div class="btn-grid-2" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveHeaderFromModal()">Guardar Modelo</button>
+        <button class="btn" onclick="closeHeaderModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREADOR / EDITOR DE ESTILO VISUAL -->
+  <div class="modal-overlay" id="styleModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:13px;" id="styleModalHeading">Configurar Modelo de Estilo Visual</strong>
+        <button class="ctrl-btn" onclick="closeStyleModal()">✕</button>
+      </div>
+      <input type="hidden" id="editingStyleKey" value="">
+      <div class="form-group">
+        <label>Nombre del Estilo</label>
+        <input type="text" id="styleModelName" placeholder="Ej. Minimalista Técnico">
+      </div>
+      <div class="sidebar-title" style="margin-top:8px;">Tintas y Colores</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+        <div class="form-group">
+          <label style="font-size:10px;">Tinta Principal</label>
+          <input type="color" id="styleModelInkDark" value="#000000" style="width:100%; height:26px; border:1px solid #cbd5e1; border-radius:4px; padding:1px;">
+        </div>
+        <div class="form-group">
+          <label style="font-size:10px;">Tinta Guías/Líneas</label>
+          <input type="color" id="styleModelInkRule" value="#cbd5e1" style="width:100%; height:26px; border:1px solid #cbd5e1; border-radius:4px; padding:1px;">
+        </div>
+        <div class="form-group">
+          <label style="font-size:10px;">Color de Acento</label>
+          <input type="color" id="styleModelAccent" value="#2563eb" style="width:100%; height:26px; border:1px solid #cbd5e1; border-radius:4px; padding:1px;">
+        </div>
+      </div>
+      <div class="sidebar-title" style="margin-top:6px;">Pauta y Cajas</div>
+      <div class="btn-grid-2">
+        <div class="form-group">
+          <label>Paso de Renglón</label>
+          <select id="styleModelGridStep">
+            <option value="5.0">5.0 mm (Compacta)</option>
+            <option value="6.0">6.0 mm (Japonesa)</option>
+            <option value="7.0">7.0 mm (Fina)</option>
+            <option value="7.5">7.5 mm (Estándar)</option>
+            <option value="8.5">8.5 mm (Grande)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tratamiento Cajas</label>
+          <select id="styleModelBoxStyle">
+            <option value="framed">Marco Cerrado</option>
+            <option value="open">Abierto Minimalista</option>
+            <option value="inverted">Cabecera Invertida</option>
+            <option value="stripe">Banda Acento Lateral</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-grid-2">
+        <div class="form-group">
+          <label>Bordes Cajas</label>
+          <select id="styleModelBoxRadius">
+            <option value="sharp">Esquinas Vivas (0 mm)</option>
+            <option value="rounded">Redondeadas (2.5 mm)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipografía</label>
+          <select id="styleModelFont">
+            <option value="sans">Sans-Serif Moderna</option>
+            <option value="serif">Serif Editorial</option>
+            <option value="mono">Monospace Técnica</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Color del Thumb Tab asociado</label>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <label style="margin:0; font-size:10px; font-weight:normal;">Fondo:</label>
+          <input type="color" id="styleModelThumbBg" value="#0f172a" style="width:30px; height:24px; padding:0; border:1px solid #cbd5e1; border-radius:3px;">
+          <label style="margin:0; font-size:10px; font-weight:normal;">Texto:</label>
+          <input type="color" id="styleModelThumbColor" value="#ffffff" style="width:30px; height:24px; padding:0; border:1px solid #cbd5e1; border-radius:3px;">
+        </div>
+      </div>
+      <div class="btn-grid-2" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveStyleFromModal()">Guardar Estilo</button>
+        <button class="btn" onclick="closeStyleModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GENERADOR DE IMPRESIÓN POR LOTES -->
+  <div class="modal-overlay" id="batchModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:14px;">📅 Impresión & Guardado de Agenda por Lote</strong>
+        <button class="ctrl-btn" onclick="closeBatchModal()">✕</button>
+      </div>
+      
+      <div class="form-group">
+        <label>Nombre de la Agenda (Para la Biblioteca)</label>
+        <input type="text" id="batchAgendaName" placeholder="Ej. Sprint Trimestre 4 o Cuadernillo Personal">
+      </div>
+
+      <div class="btn-grid-2">
+        <div class="form-group">
+          <label>Fecha de Inicio</label>
+          <input type="date" id="batchStartDate" onchange="updateBatchAuditCalculator()">
+        </div>
+        <div class="form-group">
+          <label>Fecha de Fin</label>
+          <input type="date" id="batchEndDate" onchange="updateBatchAuditCalculator()">
+        </div>
+      </div>
+
+      <div class="sidebar-title" style="margin-top:6px;">Asignación de Plantillas</div>
+      <div class="form-group">
+        <label>Lunes a Jueves (Jornada Técnica / Producción)</label>
+        <select id="batchPresetMonThu"></select>
+      </div>
+      <div class="form-group">
+        <label>Viernes (Cierre Comercial & Facturación)</label>
+        <select id="batchPresetFri"></select>
+      </div>
+      <div class="form-group">
+        <label>Sábado y Domingo (Personal & Descanso)</label>
+        <select id="batchPresetWeekend"></select>
+      </div>
+
+      <div class="form-group" style="margin-top:6px;">
+        <label>Días Festivos / Excepciones (YYYY-MM-DD separados por comas)</label>
+        <input type="text" id="batchHolidays" placeholder="Ej. 2026-10-12, 2026-11-01" oninput="updateBatchAuditCalculator()">
+      </div>
+
+      <div class="form-group">
+        <label>Modo de Salida del Lote</label>
+        <select id="batchOutputMode" onchange="updateBatchAuditCalculator()">
+          <option value="duplex_sequence">Doble Cara Consecutiva (Anverso Fecha / Reverso Notas)</option>
+          <option value="single_sequence">Páginas Simples (1 día por hoja)</option>
+          <option value="booklet">Cuadernillo Plegado Booklet (A4 Apaisado doblado a A5)</option>
+        </select>
+      </div>
+
+      <div id="batchAuditBanner" class="audit-banner">
+        Calculando tirada física...
+      </div>
+
+      <div class="btn-grid-2" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="generateAndPrintBatch()">🖨️ Imprimir Lote Ahora</button>
+        <button class="btn" onclick="saveCurrentBatchAsAgenda()">💾 Guardar en Biblioteca</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INSPECCIÓN PREVIA A LA IMPORTACIÓN -->
+  <div class="modal-overlay" id="preflightImportModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong style="font-size:14px;">🔍 Inspección Previa de Archivo JSON</strong>
+        <button class="ctrl-btn" onclick="closePreflightModal()">✕</button>
+      </div>
+      <div id="preflightDetails" style="font-size:11.5px; line-height:1.6; margin-bottom:12px; background:#f8fafc; padding:10px; border-radius:5px; border:1px solid var(--border-ui);">
+        Leyendo metadatos...
+      </div>
+      <div class="btn-grid-2">
+        <button class="btn btn-primary" onclick="executePreflightImport('merge')">➕ Fusionar Contenidos (Seguro)</button>
+        <button class="btn btn-danger" onclick="executePreflightImport('replace')">⚠️ Reemplazo Total</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS Y MÓDULOS -->
+  <script src="js/presets.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- MÓDULOS REGISTRADOS -->
+  <script src="modules/prod_mit.js"></script>
+  <script src="modules/prod_deepwork.js"></script>
+  <script src="modules/prod_parking.js"></script>
+  <script src="modules/psy_shutdown.js"></script>
+  <script src="modules/psy_braindump.js"></script>
+  <script src="modules/psy_weekly_review.js"></script>
+  <script src="modules/pro_billing.js"></script>
+  <script src="modules/pro_expenses.js"></script>
+  <script src="modules/pro_tax.js"></script>
+  <script src="modules/pro_pipeline.js"></script>
+  <script src="modules/pro_mileage.js"></script>
+  <script src="modules/pro_ratio.js"></script>
+  <script src="modules/pro_aging.js"></script>
+  <script src="modules/pers_expenses.js"></script>
+  <script src="modules/pers_cooldown.js"></script>
+  <script src="modules/pers_journal.js"></script>
+  <script src="modules/pers_habits.js"></script>
+  <script src="modules/gen_schedule.js"></script>
+  <script src="modules/gen_tasks.js"></script>
+  <script src="modules/gen_dots.js"></script>
+  <script src="modules/gen_eisenhower.js"></script>
+</body>
+</html>
